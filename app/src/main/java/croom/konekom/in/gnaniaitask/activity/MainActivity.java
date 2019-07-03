@@ -3,12 +3,16 @@ package croom.konekom.in.gnaniaitask.activity;
 import android.Manifest;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -19,23 +23,27 @@ import croom.konekom.in.gnaniaitask.R;
 import static croom.konekom.in.gnaniaitask.receiver.CallDurationReceiver.ACTION_IN;
 import static croom.konekom.in.gnaniaitask.receiver.CallDurationReceiver.ACTION_OUT;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private int requestCode = 1;
-
+    private Button startButton;
+    private TextView titleText,descrptionText;
     CallDurationReceiver callDurationReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
+        startButton = findViewById(R.id.startButton);
+        startButton.setOnClickListener(this);
+        titleText = findViewById(R.id.titleText);
+        descrptionText = findViewById(R.id.descriptonText);
+        descrptionText.setText("Press Start to record your calls");
+        titleText.setPaintFlags(titleText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkAndRequestPermissions();
 
         } else {
-            registerRecver();
+          //  registerRecver();
         }
     }
     private void registerRecver(){
@@ -60,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.RECORD_AUDIO,Manifest.permission.PROCESS_OUTGOING_CALLS}, requestCode);
 
         } else {
-         registerRecver();
+         //registerRecver();
         }
     }
 
@@ -70,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         if (this.requestCode == requestCode) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED&&grantResults[1]==PackageManager.PERMISSION_GRANTED&&
                     grantResults[2]==PackageManager.PERMISSION_GRANTED&&grantResults[3]==PackageManager.PERMISSION_GRANTED) {
-                registerRecver();
+                //registerRecver();
                 Toast.makeText(this, "Permissions granted", Toast.LENGTH_LONG).show();
 
             } else {
@@ -80,4 +88,29 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.startButton:
+            if(startButton.getText().toString().equalsIgnoreCase("Start")){
+                startButton.setText("Stop");
+                descrptionText.setText("Your calls are continuosly being recorded");
+                registerRecver();
+            }
+            else{
+                startButton.setText("Start");
+
+                descrptionText.setText("Press Start to record your calls");
+                unregisterReceiver(callDurationReceiver);
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(callDurationReceiver);
+        super.onDestroy();
+        //unregisterReceiver(callDurationReceiver);
+    }
 }

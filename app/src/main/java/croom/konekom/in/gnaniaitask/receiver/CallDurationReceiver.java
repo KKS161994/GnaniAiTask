@@ -50,7 +50,8 @@ public class CallDurationReceiver extends BroadcastReceiver {
         } else if (intent.getAction().equals(ACTION_OUT)) {
             if ((bundle = intent.getExtras()) != null) {
                 outCall = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
-                record_audio();
+                //record_audio();
+                wasRinging = true;
             }
         }
     }
